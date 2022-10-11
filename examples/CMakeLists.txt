@@ -1,0 +1,7 @@
+add_executable(simple simple.c)
+if(NKUI_BUILD_STATIC)
+    target_link_libraries(simple PRIVATE nkui)
+else()
+    target_compile_definitions(simple PRIVATE NK_IMPLEMENTATION)
+endif()
+set_target_properties(simple PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
