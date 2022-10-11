@@ -51,9 +51,9 @@ typedef nk_bool (*nkui_init_fn)(struct nk_context *ctx, void *userdata);
 typedef void (*nkui_term_fn)(void *userdata);
 
 /* nkui_run() is the simplified version of nkui to make quick and dirty projects.
- * main() becomes a one liner: int main(){return nkui_run(your_draw_function);}
+ * main() can become a one liner: int main(){return nkui_run(your_draw_function, NULL);}
  */
-NKUI_API int nkui_run(nkui_draw_fn draw_function);
+NKUI_API int nkui_run(nkui_draw_fn draw_function, void *userdata);
 
 /* those two constants are used with nkui_events() to select the event handling type */
 enum {
@@ -179,10 +179,11 @@ static struct nkui_params nkui_default_params = {
 
 /* API ***********************************************************************/
 
-NKUI_API int nkui_run(nkui_draw_fn draw_function) {
+NKUI_API int nkui_run(nkui_draw_fn draw_function, void *userdata) {
     struct nkui_params params;
     NK_MEMCPY(&params, &nkui_default_params, sizeof(params));
     params.draw = draw_function;
+    params.userdata = userdata;
     if (!nkui_init(&params)) return 1;
     while (nkui_events(NKUI_NO_WAIT)) nkui_render();
     nkui_shutdown();
