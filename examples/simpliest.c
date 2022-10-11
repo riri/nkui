@@ -1,11 +1,13 @@
 #include <stdio.h>
+#define NKUI_IMPLEMENTATION
 #include <nkui.h>
 
 void draw_ui(struct nk_context *ctx, int width, int height, void *userdata) {
     enum { EASY, HARD };
     static int option = HARD;
     static float value = 0.8f;
-    static unsigned int wflags = 0; /* no nuklear window flags by default! */
+
+    NK_UNUSED(userdata);
 
     if (nk_begin(ctx, "", nk_rect(0, 0, width, height), 0)) {
         nk_layout_row_static(ctx, 30, 80, 1);
@@ -29,4 +31,4 @@ void draw_ui(struct nk_context *ctx, int width, int height, void *userdata) {
     nk_end(ctx);
 }
 
-int main(int argc, char *argv[]) { return nkui_run(draw_ui, 0); }
+int main() { return nkui_run(draw_ui, 0); }

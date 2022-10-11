@@ -5,6 +5,15 @@
 #define NKUI_GDIP   'w'
 #define NKUI_GLFW   'g'
 #define NKUI_SDL2   's'
+#if NKUI_BACKEND==NKUI_NATIVE
+#undef NKUI_BACKEND
+#ifdef _WIN32
+#define NKUI_BACKEND NKUI_GDIP
+#elif defined(__apple__)
+#else
+#define NKUI_BACKEND NKUI_XLIB
+#endif
+#endif
 
 /* Include nuklear before this header if you want to control its inclusion
  * and defines. Nkui will automatically set the following defines depending
@@ -135,7 +144,7 @@ extern "C" {
 #define NKUI_DEFAULT_HEIGHT     768
 #endif
 #ifndef NKUI_DEFAULT_BG
-#define NKUI_DEFAULT_BG         (struct nk_color){0, 20, 20, 255}
+#define NKUI_DEFAULT_BG         {0, 20, 20, 255}
 #endif
 #ifndef NKUI_DEFAULT_FONT_SIZE
 #define NKUI_DEFAULT_FONT_SIZE  12
@@ -162,18 +171,17 @@ extern "C" {
 #endif
 
 static struct nk_color nkui_default_render_color(void *userdata) {
+    static struct nk_color color = NKUI_DEFAULT_BG;
     NK_UNUSED(userdata);
-    return NKUI_DEFAULT_BG;
+    return color;
 }
 
 static struct nkui_params nkui_default_params = {
-    .title  = NKUI_DEFAULT_TITLE,
-    .x      = 0,
-    .y      = 0,
-    .width  = NKUI_DEFAULT_WIDTH,
-    .height = NKUI_DEFAULT_HEIGHT,
+    NKUI_DEFAULT_TITLE,
+    0, 0, NKUI_DEFAULT_WIDTH, NKUI_DEFAULT_HEIGHT,
 
-    .clear  = nkui_default_render_color
+    NULL, nkui_default_render_color, NULL, NULL,
+    NULL
 };
 
 
