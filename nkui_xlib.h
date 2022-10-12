@@ -8,13 +8,13 @@
 #define NK_XLIB_IMPLEMENTATION
 #define NK_XLIB_USE_XFT
 
-#if defined(NKUI_IMAGE_LOADER) && defined(NKUI_INCLUDE_STBIMAGE)
+#if defined(NKUI_IMAGE_LOADER) && !defined(NKUI_NO_INCLUDE_STBIMAGE)
 #define NK_XLIB_INCLUDE_STB_IMAGE
 #ifndef NKUI_NO_STBIMAGE_IMPL
 #define NK_XLIB_IMPLEMENT_STB_IMAGE
 #endif
 /*#include <stb_image.h>*/
-#endif /* NKUI_IMAGE_LOADED && NKUI_INCLUDE_STBIMAGE */
+#endif /* NKUI_IMAGE_LOADED && !NKUI_NO_INCLUDE_STBIMAGE */
 
 #include <time.h>
 #include <sys/time.h>
