@@ -28,6 +28,7 @@
 
 #if NKUI_BACKEND==NKUI_XLIB
 #define NK_INCLUDE_DEFAULT_ALLOCATOR
+#define NK_INCLUDE_STANDARD_VARARGS
 /* define as dummies as they are not used and generate warnings */
 #define NK_INV_SQRT
 #define NK_SIN
@@ -102,6 +103,8 @@ NKUI_API void nkui_shutdown(void);
  * milliseconds
  */
 NKUI_API nk_bool nkui_events(int wait);
+/* nkui_stop() permits to end the program from a function */
+NKUI_API void nkui_stop(void);
 /* nkui_render() clears the window, calls your draw function, then renders
  * the result on the window */
 NKUI_API void nkui_render(void);
@@ -117,6 +120,12 @@ NKUI_API struct nkui_font *nkui_font_load_native(const char *name, int size);
 NKUI_API struct nk_font *nkui_font_load_file(const char *name, int size);
 #endif
 NKUI_API void nkui_font_end(void);
+
+#ifdef NKUI_IMAGE_LOADER
+NKUI_API struct nk_image nkui_image_load_file(const char *filename);
+NKUI_API struct nk_image nkui_image_load_memory(const char *membuf, nk_uint memsize);
+NKUI_API void nkui_image_free(struct nk_image image);
+#endif
 
 #ifdef __cplusplus
 }

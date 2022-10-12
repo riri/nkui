@@ -8,6 +8,14 @@
 #define NK_XLIB_IMPLEMENTATION
 #define NK_XLIB_USE_XFT
 
+#if defined(NKUI_IMAGE_LOADER) && defined(NKUI_INCLUDE_STBIMAGE)
+#define NK_XLIB_INCLUDE_STB_IMAGE
+#ifndef NKUI_NO_STBIMAGE_IMPL
+#define NK_XLIB_IMPLEMENT_STB_IMAGE
+#endif
+/*#include <stb_image.h>*/
+#endif /* NKUI_IMAGE_LOADED && NKUI_INCLUDE_STBIMAGE */
+
 #include <time.h>
 #include <sys/time.h>
 #include <X11/Xlib.h>
@@ -49,6 +57,7 @@ static struct nkui {
     Cursor hidden_cursor;
     XWindowAttributes xwa;
     long loop_started;
+    nk_bool stop;
 
     struct atoms {
         Atom wm_protocols;
@@ -168,13 +177,14 @@ NKUI_API nk_bool nkui_events(int wait) {
     XEvent event;
 
     NK_UNUSED(wait);
+    if (nkui.stop) return nk_false;
 
     /* if no context, then no font loaded, ensure all is loaded now */
     if (!nkui.ctx) nkui_ensure_context_loaded();
 
     nkui.loop_started = timestamp();
     nk_input_begin(nkui.ctx);
-    while (ret && XPending(nkui.dpy)) {
+    while (!nkui.stop && ret && XPending(nkui.dpy)) {
         XNextEvent(nkui.dpy, &event);
         if (event.type == ClientMessage) {
             if (event.xclient.message_type == nkui.atoms.wm_protocols &&
@@ -190,11 +200,16 @@ NKUI_API nk_bool nkui_events(int wait) {
     return ret;
 }
 
+NKUI_API void nkui_stop(void) {
+    nkui.stop = nk_true;
+}
+
 NKUI_API void nkui_render(void) {
     long dt;
 
     XGetWindowAttributes(nkui.dpy, nkui.xwin, &nkui.xwa);
     nkui.draw(nkui.ctx, nkui.xwa.width, nkui.xwa.height, nkui.userdata);
+    if (nkui.stop) return;
 
     XClearWindow(nkui.dpy, nkui.xwin);
     nk_xlib_render(nkui.xwin, nkui.clear(nkui.userdata));
@@ -234,6 +249,19 @@ NKUI_API void nkui_font_end(void) {
     if (!nkui.ctx) nkui_ensure_context_loaded();
 }
 
+#ifdef NKUI_IMAGE_LOADER
+NKUI_API struct nk_image nkui_image_load_file(const char *filename) {
+    return nk_xsurf_load_image_from_file(filename);
+}
+
+NKUI_API struct nk_image nkui_image_load_memory(const char *membuf, nk_uint memsize) {
+    return nk_xsurf_load_image_from_memory(membuf, memsize);
+}
+
+NKUI_API void nkui_image_free(struct nk_image image) {
+    nk_xsurf_image_free(&image);
+}
+#endif /* NKUI_IMAGE_LOADER */
 
 #ifdef __cplusplus
 }
