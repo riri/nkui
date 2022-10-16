@@ -139,7 +139,7 @@ static void app_draw(struct nk_context *ctx, int w, int h, void *userdata) {
     set_style(ctx, style);
 
     if (demos[DEMO_OVERVIEW]) overview(ctx, SIDEBAR_WIDTH + 20, 20);
-    if (demos[DEMO_CALCULATOR]) calculator(ctx, 20, h - 300);
+    if (demos[DEMO_CALCULATOR]) calculator(ctx, nk_rect(0, h - 200, SIDEBAR_WIDTH, 200));
     if (demos[DEMO_NODEEDITOR]) node_editor(ctx, SIDEBAR_WIDTH + 20, 20);
     if (demos[DEMO_CANVAS]) canvas(ctx, SIDEBAR_WIDTH + 20, 20);
     if (demos[DEMO_FILEBROWSER]) {
