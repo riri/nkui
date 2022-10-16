@@ -111,19 +111,21 @@ NKUI_API void nkui_render(void);
 
 NKUI_API struct nk_font_atlas *nkui_font_begin(void);
 #ifdef NK_INCLUDE_DEFAULT_FONT
-NKUI_API struct nk_font *nkui_font_load_default(int size);
+/* NKUI_API struct nk_font *nkui_font_load_default(int size); */
 #endif
 #if NKUI_BACKEND==NKUI_XLIB
-NKUI_API struct nkui_font *nkui_font_load_native(const char *name, int size);
+/* NKUI_API struct nkui_font *nkui_font_load_native(const char *name, int size); */
+NKUI_API struct nk_user_font *nkui_font_load_native(const char *name, int size);
 #endif
 #ifdef NK_INCLUDE_STANDARD_IO
 NKUI_API struct nk_font *nkui_font_load_file(const char *name, int size);
 #endif
 NKUI_API void nkui_font_end(void);
+NKUI_API void nkui_font_free(struct nk_user_font *font);
 
 #ifdef NKUI_IMAGE_LOADER
 NKUI_API struct nk_image nkui_image_load_file(const char *filename);
-NKUI_API struct nk_image nkui_image_load_memory(const char *membuf, nk_uint memsize);
+NKUI_API struct nk_image nkui_image_load_memory(const unsigned char *membuf, nk_uint memsize);
 NKUI_API void nkui_image_free(struct nk_image image);
 #endif
 
@@ -138,10 +140,6 @@ NKUI_API void nkui_image_free(struct nk_image image);
 /*****************************************************************************/
 #if defined(NKUI_IMPLEMENTATION) && !defined(NKUI_IMPLEMENTED)
 #define NKUI_IMPLEMENTED
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifndef NKUI_DEFAULT_TITLE
 #define NKUI_DEFAULT_TITLE      "Nuklear Window"
@@ -179,6 +177,48 @@ extern "C" {
 #endif
 #endif
 
+#if defined(NKUI_REALLOC) && !defined(NKUI_FREE) || !defined(NKUI_REALLOC) && defined(NKUI_FREE)
+#error NKUI_REALLOC and NKUI_FREE must be defined together, or not at all.
+#endif
+#ifndef NKUI_REALLC
+#include <stdlib.h>
+#define NKUI_REALLOC(p, s)      realloc(p, s)
+/* note that NKUI_FREE() returns a nullified pointer */
+#define NKUI_FREE(p)            (free(p), (p) = 0)
+#endif
+
+#if !defined(NKUI_MEMCPY) || !defined(NKUI_MEMSET)
+#if !defined(NK_MEMCPY) && !defined(NK_MEMSET)
+#include <string.h>
+#endif
+#ifndef NKUI_MEMCPY
+#ifdef NK_MEMCPY
+#define NKUI_MEMCPY             NK_MEMCPY
+#else
+#define NKUI_MEMCPY             memcpy
+#endif
+#endif
+#ifndef NKUI_MEMSET
+#ifdef NK_MEMSET
+#define NKUI_MEMSET             NK_MEMSET
+#else
+#define NKUI_MEMSET             memset
+#endif
+#endif
+
+#ifndef NKUI_ZERO
+#ifndef NK_IMPLEMENTATION
+#define NKUI_ZERO(p, s)         NKUI_MEMSET(p, s)
+#else
+#define NKUI_ZERO               nk_zero
+#endif
+#endif
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static struct nk_color nkui_default_render_color(void *userdata) {
     static struct nk_color color = NKUI_DEFAULT_BG;
     NK_UNUSED(userdata);
@@ -198,7 +238,7 @@ static struct nkui_params nkui_default_params = {
 
 NKUI_API int nkui_run(nkui_draw_fn draw_function, void *userdata) {
     struct nkui_params params;
-    NK_MEMCPY(&params, &nkui_default_params, sizeof(params));
+    NKUI_MEMCPY(&params, &nkui_default_params, sizeof(params));
     params.draw = draw_function;
     params.userdata = userdata;
     if (!nkui_init(&params)) return 1;

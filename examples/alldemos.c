@@ -13,8 +13,16 @@ enum {
     NUM_DEMOS
 };
 
+struct app_font {
+    const char *name;
+    int size;
+    struct nk_user_font *font;
+};
+
 struct app {
     struct nk_color bg;
+    struct app_font font;
+
     struct media media;
     struct file_browser browser;
 };
@@ -39,6 +47,11 @@ static nk_bool app_init(struct nk_context *ctx, void *userdata) {
     app->media.icons.movie_file = nkui_image_load_file("../icon/movie.png");
     fb_media_init(&app->media);
     file_browser_init(&app->browser, &app->media);
+
+    app->font.name = "Sans";
+    app->font.size = 10;
+    app->font.font = nkui_font_load_native(app->font.name, app->font.size);
+    nk_style_set_font(ctx, app->font.font);
 
     return nk_true;
 }
@@ -102,6 +115,18 @@ static void app_draw(struct nk_context *ctx, int w, int h, void *userdata) {
             set_style(ctx, style);
         }
         style_sidebar = nk_check_label(ctx, "On sidebar too", style_sidebar);
+
+        nk_spacer(ctx);
+        nk_label(ctx, "Font:", NK_TEXT_LEFT);
+        int font_size = app->font.size;
+        nk_property_int(ctx, "Size:", 8, &font_size, 96, 1, 1);
+        if (font_size != app->font.size) {
+            struct nk_user_font *font = nkui_font_load_native(app->font.name, font_size);
+            nkui_font_free(app->font.font);
+            nk_style_set_font(ctx, font);
+            app->font.font = font;
+            app->font.size = font_size;
+        }
 
         nk_spacer(ctx);
         nk_label(ctx, "Demos:", NK_TEXT_ALIGN_LEFT);
