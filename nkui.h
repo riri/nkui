@@ -172,9 +172,6 @@ NKUI_API void nkui_image_free(struct nk_image image);
 #ifndef NK_MEMSET
 #define NK_MEMSET               memset
 #endif
-#ifndef nk_zero
-#define nk_zero(p, s)           NK_MEMSET(p, 0, s)
-#endif
 #endif
 
 #if defined(NKUI_REALLOC) && !defined(NKUI_FREE) || !defined(NKUI_REALLOC) && defined(NKUI_FREE)
@@ -207,11 +204,7 @@ NKUI_API void nkui_image_free(struct nk_image image);
 #endif
 
 #ifndef NKUI_ZERO
-#ifndef NK_IMPLEMENTATION
-#define NKUI_ZERO(p, s)         NKUI_MEMSET(p, s)
-#else
-#define NKUI_ZERO               nk_zero
-#endif
+#define NKUI_ZERO(p, s)         NKUI_MEMSET(p, 0, s)
 #endif
 #endif
 
