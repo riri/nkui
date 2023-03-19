@@ -427,7 +427,7 @@ static struct nk_image nkui__convert_stbi_image(unsigned char *data, int w, int 
 /* Events ********************************************************************/
 
 static void nkui__ensure_font_loaded(void) {
-    if (!nkui.fonts) {
+    if (!nkui.fonts || !nkui.fonts->userdata.ptr) {
         nkui_font_load_native(NKUI_DEFAULT_FONT_NATIVE, NKUI_DEFAULT_FONT_SIZE);
         nk_style_set_font(&nkui.ctx, nkui.fonts);
     }
@@ -493,6 +493,10 @@ NKUI_API nk_bool nkui_init(struct nkui_params *params) {
     nkui.dw = XCreatePixmap(nkui.dpy, nkui.xwin, nkui.xwa.width, nkui.xwa.height, nkui.depth);
     nkui.xft = XftDrawCreate(nkui.dpy, nkui.dw, nkui.vis, nkui.cmap);
 
+    /* create an initial set of 2 font slots */
+    nkui.fonts = NKUI_REALLOC(NULL, 2 * sizeof(struct nk_user_font));
+    NKUI_ZERO(nkui.fonts, 2 * sizeof(struct nk_user_font));
+
     /* initialize nuklear context */
     if (!nk_init_default(&nkui.ctx, NULL)) {
         nkui_shutdown();
@@ -506,10 +510,6 @@ NKUI_API nk_bool nkui_init(struct nkui_params *params) {
             return nk_false;
         }
     }
-
-    /* create an initial set of 2 font slots */
-    nkui.fonts = NKUI_REALLOC(NULL, 2 * sizeof(struct nk_user_font));
-    NKUI_ZERO(nkui.fonts, 2 * sizeof(struct nk_user_font));
 
     /* XSynchronize(nkui.dpy, True); */
 
