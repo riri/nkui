@@ -14,7 +14,8 @@ void set_style(struct nk_context *ctx, enum STYLES theme);
 nk_bool style_combo(struct nk_context *ctx, float item_height, float list_width, int *theme);
 
 nk_bool overview(struct nk_context *ctx, float width_offset, float height_offset);
-nk_bool calculator(struct nk_context *ctx, float width_offset, float height_offset);
+nk_bool calculator(struct nk_context *ctx, struct nk_rect bounds);
+/* nk_bool calculator(struct nk_context *ctx, float width_offset, float height_offset); */
 int node_editor(struct nk_context *ctx, float width_offset, float height_offset);
 nk_bool canvas(struct nk_context *ctx, float width_offset, float height_offset);
 

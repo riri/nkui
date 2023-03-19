@@ -4,9 +4,9 @@
 #include <stdio.h> /* snprintf() */
 
 /* nuklear - v1.00 - public domain */
-nk_bool calculator(struct nk_context *ctx, float width_offset, float height_offset) {
-    if (nk_begin(ctx, "Calculator", nk_rect(width_offset, height_offset, 180, 250),
-        NK_WINDOW_BORDER|NK_WINDOW_NO_SCROLLBAR|NK_WINDOW_MOVABLE))
+nk_bool calculator(struct nk_context *ctx, struct nk_rect bounds) {
+/* nk_bool calculator(struct nk_context *ctx, float width_offset, float height_offset) { */
+    if (nk_begin(ctx, "Calculator", bounds, NK_WINDOW_NO_SCROLLBAR))
     {
         static int set = 0, prev = 0, op = 0;
         static const char numbers[] = "789456123";
