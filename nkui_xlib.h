@@ -491,13 +491,16 @@ NKUI_API struct nkui *nkui_init(struct nkui_params *params) {
     width = params->width > 0 ? params->width : NKUI_DEFAULT_WIDTH;
     height = params->height > 0 ? params->height : NKUI_DEFAULT_HEIGHT;
     title = params->title ? params->title : NKUI_DEFAULT_TITLE;
-    xswa.event_mask =   ExposureMask | StructureNotifyMask
+    xswa.event_mask =   ExposureMask /*| StructureNotifyMask*/
                     |   KeyPressMask | KeyReleaseMask | KeymapStateMask
-                    |   ButtonPressMask | ButtonReleaseMask | ButtonMotionMask
+                    |   ButtonPressMask | ButtonReleaseMask
+                    |   ButtonMotionMask | Button1MotionMask | Button3MotionMask
+                    |   Button4MotionMask | Button5MotionMask
                     |   PointerMotionMask
                     ;
+    xswa.colormap = ui->cmap;
     ui->xwin = XCreateWindow(ui->dpy, ui->root, params->x, params->y, width, height,
-        0, ui->depth, InputOutput, ui->vis, CWEventMask, &xswa);
+        0, ui->depth, InputOutput, ui->vis, CWEventMask | CWColormap, &xswa);
     XStoreName(ui->dpy, ui->xwin, title);
     XMapWindow(ui->dpy, ui->xwin);
     XSetWMProtocols(ui->dpy, ui->xwin, &ui->atoms.wm_delete_window, 1);
