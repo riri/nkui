@@ -168,7 +168,7 @@ FILE_DEF(enum file_types type, const char *suffix, enum file_groups group)
     return fd;
 }
 
-void fb_media_init(struct media *media) {
+void fb_media_init(struct nkui *ui, struct media *media) {
     /* file groups */
     struct icons *icons = &media->icons;
     media->group[FILE_GROUP_DEFAULT] = FILE_GROUP(FILE_GROUP_DEFAULT,"default",&icons->default_file);
@@ -197,11 +197,11 @@ void fb_media_init(struct media *media) {
     media->files[FILE_GIF] = FILE_DEF(FILE_GIF, "gif", FILE_GROUP_IMAGE);
 }
 
-void fb_media_free(struct media *media) {
+void fb_media_free(struct nkui *ui, struct media *media) {
     int i, max;
 
     for (i = 0; i < FILE_GROUP_MAX; ++i) {
-        if (media->group[i].icon->handle.ptr) nkui_image_free(*(media->group[i].icon));
+        if (media->group[i].icon->handle.ptr) nkui_image_free(ui, *(media->group[i].icon));
     }
     for (i = 0; i < FILE_MAX; ++i) {
     }
@@ -223,14 +223,14 @@ void file_browser_init(struct file_browser *browser, struct media *media)
     browser->media = media;
     {
         /* load files and sub-directory list */
-        const char *home = getenv("HOME");
+        const char *dir = getenv("HOME");
 #ifdef _WIN32
-        if (!home) home = getenv("USERPROFILE");
+        if (!dir) dir = getenv("USERPROFILE");
 #else
-        if (!home) home = getpwuid(getuid())->pw_dir;
+        if (!dir) dir = getpwuid(getuid())->pw_dir;
         {
             size_t l;
-            strncpy(browser->home, home, PATH_MAX);
+            strncpy(browser->home, dir, PATH_MAX);
             browser->home[PATH_MAX - 1] = 0;
             l = strlen(browser->home);
             strcpy(browser->home + l, "/");
@@ -319,8 +319,8 @@ int file_browser_run(struct file_browser *browser, struct nk_context *ctx) {
                 nk_layout_row_dynamic(ctx, 40, 1);
                 if (nk_button_image_label(ctx, home, "home", NK_TEXT_CENTERED))
                     file_browser_reload_directory_content(browser, browser->home);
-                if (nk_button_image_label(ctx,desktop,"desktop",NK_TEXT_CENTERED))
-                    file_browser_reload_directory_content(browser, browser->desktop);
+                /*if (nk_button_image_label(ctx,desktop,"desktop",NK_TEXT_CENTERED))
+                    file_browser_reload_directory_content(browser, browser->desktop);*/
                 if (nk_button_image_label(ctx,computer,"computer",NK_TEXT_CENTERED))
                     file_browser_reload_directory_content(browser, "/");
                 nk_group_end(ctx);

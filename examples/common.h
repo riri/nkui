@@ -99,8 +99,8 @@ struct file_browser {
 };
 
 struct nk_image fb_icon_load(const char *filename);
-void fb_media_init(struct media *media);
-void fb_media_free(struct media *media);
+void fb_media_init(struct nkui *ui, struct media *media);
+void fb_media_free(struct nkui *ui, struct media *media);
 
 void file_browser_init(struct file_browser *browser, struct media *media);
 void file_browser_free(struct file_browser *browser);

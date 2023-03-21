@@ -49,16 +49,17 @@ extern "C" {
 
 /* API ***********************************************************************/
 
-struct nkui_font;
+/* implementation defined: handle to one nkui instance */
+struct nkui;
 
 /* nkui_draw_fn is a callback function you provide to draw your nuklear UI */
-typedef void (*nkui_draw_fn)(struct nk_context *ctx, int width, int height, void *userdata);
+typedef void (*nkui_draw_fn)(struct nkui *ui, struct nk_context *ctx, int width, int height, void *userdata);
 /* nkui_clear_fn is called before rendering the UI, returning the background color */
 typedef struct nk_color (*nkui_clear_fn)(void *userdata);
 /* nkui_init_fn is called just before the first event is checked, the window is create */
-typedef nk_bool (*nkui_init_fn)(struct nk_context *ctx, void *userdata);
+typedef nk_bool (*nkui_init_fn)(struct nkui *ui, struct nk_context *ctx, void *userdata);
 /* nkui_term_fn is called just before the window is destroyed */
-typedef void (*nkui_term_fn)(void *userdata);
+typedef void (*nkui_term_fn)(struct nkui *ui, void *userdata);
 
 /* nkui_run() is the simplified version of nkui to make quick and dirty projects.
  * main() can become a one liner: int main(){return nkui_run(your_draw_function, NULL);}
@@ -93,40 +94,40 @@ struct nkui_params {
 };
 
 /* nkui_init() setup the backend and creates the window */
-NKUI_API nk_bool nkui_init(struct nkui_params *params);
+NKUI_API struct nkui *nkui_init(struct nkui_params *params);
 /* nkui_shutdown() cleans up all nkui resources (and destroys the window) */
-NKUI_API void nkui_shutdown(void);
+NKUI_API void nkui_shutdown(struct nkui *ui);
 /* nkui_events() handles events and populates nuklear input context
  * it returns nk_false if the program should stop
  * use NKUI_NO_WAIT for a classic continuous loop, NKUI_WAIT_FOREVER to block
  * on events (more desktop like) or any value > 0 to wait for this amount of
  * milliseconds
  */
-NKUI_API nk_bool nkui_events(int wait);
-/* nkui_stop() permits to end the program from a function */
-NKUI_API void nkui_stop(void);
+NKUI_API nk_bool nkui_events(struct nkui *ui, int wait);
+/* nkui_stop() permits to end the  program from a function */
+NKUI_API void nkui_stop(struct nkui *ui);
 /* nkui_render() clears the window, calls your draw function, then renders
  * the result on the window */
-NKUI_API void nkui_render(void);
+NKUI_API void nkui_render(struct nkui *ui);
 
-NKUI_API struct nk_font_atlas *nkui_font_begin(void);
+NKUI_API struct nk_font_atlas *nkui_font_begin(struct nkui *ui);
 #ifdef NK_INCLUDE_DEFAULT_FONT
 /* NKUI_API struct nk_font *nkui_font_load_default(int size); */
 #endif
 #if NKUI_BACKEND==NKUI_XLIB
 /* NKUI_API struct nkui_font *nkui_font_load_native(const char *name, int size); */
-NKUI_API struct nk_user_font *nkui_font_load_native(const char *name, int size);
+NKUI_API struct nk_user_font *nkui_font_load_native(struct nkui *ui, const char *name, int size);
 #endif
 #ifdef NK_INCLUDE_STANDARD_IO
-NKUI_API struct nk_font *nkui_font_load_file(const char *name, int size);
+NKUI_API struct nk_font *nkui_font_load_file(struct nkui *ui, const char *name, int size);
 #endif
-NKUI_API void nkui_font_end(void);
-NKUI_API void nkui_font_free(struct nk_user_font *font);
+NKUI_API void nkui_font_end(struct nkui *ui);
+NKUI_API void nkui_font_free(struct nkui *ui, struct nk_user_font *font);
 
 #ifdef NKUI_IMAGE_LOADER
-NKUI_API struct nk_image nkui_image_load_file(const char *filename);
-NKUI_API struct nk_image nkui_image_load_memory(const unsigned char *membuf, nk_uint memsize);
-NKUI_API void nkui_image_free(struct nk_image image);
+NKUI_API struct nk_image nkui_image_load_file(struct nkui *ui, const char *filename);
+NKUI_API struct nk_image nkui_image_load_memory(struct nkui *ui, const unsigned char *membuf, nk_uint memsize);
+NKUI_API void nkui_image_free(struct nkui *ui, struct nk_image image);
 #endif
 
 #ifdef __cplusplus
@@ -231,12 +232,14 @@ static struct nkui_params nkui_default_params = {
 
 NKUI_API int nkui_run(nkui_draw_fn draw_function, void *userdata) {
     struct nkui_params params;
+    struct nkui *ui;
     NKUI_MEMCPY(&params, &nkui_default_params, sizeof(params));
     params.draw = draw_function;
     params.userdata = userdata;
-    if (!nkui_init(&params)) return 1;
-    while (nkui_events(NKUI_NO_WAIT)) nkui_render();
-    nkui_shutdown();
+    ui = nkui_init(&params);
+    if (!ui) return 1;
+    while (nkui_events(ui, NKUI_NO_WAIT)) nkui_render(ui);
+    nkui_shutdown(ui);
     return 0;
 }
 
