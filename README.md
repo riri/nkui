@@ -83,8 +83,9 @@ But in turn, this is a shortcut to more fine grained functions, giving a real co
 
 ## TODOs
 
-* get rid of the `demo/**/nuklear_xxx.h` backends and rebuild them for usage in nkui, thus avoiding to have static/global variables and be extensible
-* change the API to use a `nkui` handle overall (needing the previous point to be done) and eventually having several UI instances (each one can have its run loop in a separate thread)
+* ~~get rid of the `demo/**/nuklear_xxx.h` backends and rebuild them for usage in nkui, thus avoiding to have static/global variables and be extensible~~
+* ~~change the API to use a `nkui` handle overall (needing the previous point to be done) and eventually having several UI instances (each one can have its run loop in a separate thread)~~
+* make it multi window (one context per window)
 * get rid of standard includes, mostly using `struct nk_allocator` everywhere
 * understand all the nuklear font managment (especially baking), I'm always lost in those :)
 

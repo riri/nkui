@@ -2,7 +2,7 @@
 #define NKUI_IMPLEMENTATION
 #include <nkui.h>
 
-void draw_ui(struct nk_context *ctx, int width, int height, void *userdata) {
+void draw_ui(struct nkui *ui, struct nk_context *ctx, int width, int height, void *userdata) {
     enum { EASY, HARD };
     static int option = HARD;
     static float value = 0.8f;
